@@ -1,3 +1,5 @@
+#!/bin/bash
+
 sudo curl -o /etc/yum.repos.d/jenkins.repo \
     https://pkg.jenkins.io/rpm-stable/jenkins.repo
 # sudo yum upgrade
