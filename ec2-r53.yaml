@@ -25,7 +25,7 @@
     amazon.aws.ec2_instance:
       name: "{{ item }}"
       vpc_subnet_id: "{{ subnet_id }}"
-      instance_type: "t2.micro"
+      instance_type: "t2.small"
       security_group: "{{ sg_id }}"
       image_id: "{{ ami_id }}"
       volumes:
