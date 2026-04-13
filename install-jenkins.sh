@@ -6,4 +6,6 @@ sudo curl -o /etc/yum.repos.d/jenkins.repo \
 # # Add required dependencies for the jenkins package
 sudo yum install fontconfig java-21-openjdk -y
 sudo yum install jenkins -y
-sudo systemctl daemon-reload
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+sudo netstat -lntp
