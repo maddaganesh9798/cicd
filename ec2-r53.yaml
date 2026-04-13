@@ -1,0 +1,67 @@
+- name: ec2 and r53 records
+  hosts: local
+  connection: local
+  # assignment
+  # move this to vars_files
+  vars:
+    # subnet_id: "subnet-09863c54177764565" # replace with your subnet id
+    # sg_id: "sg-09a300a3729062c5a"
+    # ami_id: "ami-09c813fb71547fc4f"
+    subnet_id: "subnet-0959de57b0ad6410f"
+    sg_id: "sg-0bdc6d5500f2d30d5"
+    ami_id: "ami-0220d79f3f480ecf5"
+    instances:
+    - jenkins
+    - jenkins-agent1
+    zone: daws98.store
+  tasks:
+  - name: ansible to install boto3 and botocore
+    ansible.builtin.pip:
+      name:
+      - boto3
+      - botocore
+      executable: pip3.9
+  - name: create ec2 instance
+    amazon.aws.ec2_instance:
+      name: "{{ item }}"
+      vpc_subnet_id: "{{ subnet_id }}"
+      instance_type: "t2.micro"
+      security_group: "{{ sg_id }}"
+      image_id: "{{ ami_id }}"
+      volumes:
+      - device_name: /dev/sda1
+        ebs:
+          volume_size: 50
+          delete_on_termination: true
+    loop: "{{ instances }}"
+    register: ec2_instances
+
+  - name: print the output
+    ansible.builtin.debug:
+      msg: "{{ ec2_instances }}"
+
+  # #private IP R53
+  # - name: create r53 private records
+  #   amazon.aws.route53:
+  #     state: present
+  #     zone: "{{ zone }}"
+  #     record: "{{ item.item }}.{{ zone }}" #mysql.daws81s.online
+  #     type: A
+  #     ttl: 1
+  #     value: "{{ item.instances[0].private_ip_address }}"
+  #     wait: true
+  #     overwrite: true
+  #   loop: "{{ ec2_instances.results }}"
+
+  # - name: create r53 public record for frontend
+  #   amazon.aws.route53:
+  #     state: present
+  #     zone: "{{ zone }}"
+  #     record: "{{ zone }}" #daws81s.online
+  #     type: A
+  #     ttl: 1
+  #     value: "{{ item.instances[0].public_ip_address }}"
+  #     wait: true
+  #     overwrite: true
+  #   loop: "{{ ec2_instances.results }}"
+  #   when: item.item == "frontend" #when keyword should not have {{}}
